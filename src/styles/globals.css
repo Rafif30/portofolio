@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Opacity & Shadow */
+    --button-outline: rgba(0,0,0, .10);
+    --badge-outline: rgba(0,0,0, .05);
+    --elevate-1: rgba(0,0,0, .03);
+    --elevate-2: rgba(0,0,0, .08);
+    --radius: .5rem;
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
+    
+    /* Background & Foreground */
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(0 0% 10%);
+  
+    /* Umum */
+    --border: hsl(0 0% 91%);
+    --input: hsl(0 0% 75%);
+    --ring: hsl(217 91% 60%); /* Biru Cerah */
+    --muted: hsl(0 0% 92%);
+    --muted-foreground: hsl(0 0% 35%);
+    
+    /* Primary & Secondary */
+    --primary: hsl(217 91% 60%);
+    --primary-foreground: hsl(0 0% 98%);
+    --secondary: hsl(0 0% 90%);
+    --secondary-foreground: hsl(0 0% 10%);
+    --accent: hsl(217 15% 94%);
+    --accent-foreground: hsl(0 0% 10%);
+    --destructive: hsl(0 84% 60%);
+    --destructive-foreground: hsl(0 0% 98%);
+  
+    /* Card */
+    --card: hsl(0 0% 98%);
+    --card-foreground: hsl(0 0% 10%);
+    --card-border: hsl(0 0% 95%);
+  
+    /* Popover */
+    --popover: hsl(0 0% 94%);
+    --popover-foreground: hsl(0 0% 10%);
+    --popover-border: hsl(0 0% 90%);
+  
+    /* Sidebar */
+    --sidebar: hsl(0 0% 96%);
+    --sidebar-foreground: hsl(0 0% 10%);
+    --sidebar-border: hsl(0 0% 92%);
+    --sidebar-primary: hsl(217 91% 60%);
+    --sidebar-primary-foreground: hsl(0 0% 98%);
+    --sidebar-accent: hsl(0 0% 92%);
+    --sidebar-accent-foreground: hsl(0 0% 10%);
+    --sidebar-ring: hsl(217 91% 60%);
+    
+    /* Chart Colors */
+    --chart-1: hsl(217 91% 45%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 49%);
+    --chart-5: hsl(27 87% 55%);
+    
+    /* Lain-lain (Non-Color) */
+    --opaque-button-border-intensity: -8;
+    --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+    --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+    --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+    --shadow: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
+    --shadow-md: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 2px 4px -1px hsl(0 0% 0% / 0.00);
+    --shadow-lg: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 4px 6px -1px hsl(0 0% 0% / 0.00);
+    --shadow-xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 8px 10px -1px hsl(0 0% 0% / 0.00);
+    --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
+    --font-sans: Inter, sans-serif;
+    --font-serif: Georgia, serif;
+    --font-mono: JetBrains Mono, monospace;
+  }
+   
+  body {
+    background: var(--background);
+    color: var(--primary);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+
+  /* Hide ugly search cancel button in Chrome until we can style it properly */
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  /* Placeholder styling for contentEditable div */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+
+  /**
+   * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
+   * This way they can stack/compound. Both will overlap the parent's borders!
+   * So borders will be automatically adjusted both on toggle, and hover/active,
+   * and they will be compounded.
+   */
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    /*border-radius: inherit;   match rounded corners */
+    border-radius: inherit;
+    z-index: -1;
+    /* sits behind content but above backdrop */
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  /* Does not work on elements with overflow:hidden! */
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    /*border-radius: inherit;   match rounded corners */
+    border-radius: inherit;
+    z-index: 999;
+    /* sits in front of content */
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+}

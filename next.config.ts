@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
   distDir: "dist",
   trailingSlash: true,
   poweredByHeader: false,
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Send } from 'lucide-react';
+import { Mail, MapPin, Send, CheckCircle, XCircle } from 'lucide-react';
+import LoadingThreeDotsPulse from './Loading'
+import Modal from './Modal';
 
 interface ContactFormData {
     name: string;
@@ -12,6 +14,8 @@ interface ContactFormData {
 }
 
 export default function Contact() {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -27,6 +31,34 @@ const handleChange = (e: InputChangeEvent): void => {
         [name]: value
     }));
 };
+
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setStatus('loading')
+  setModalOpen(true)
+
+  try {
+    const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+    });
+    if (response.ok) {
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } else {
+      setStatus('error');
+    }
+  } catch (error) {
+    console.error("Failed to send message:", error);
+    setStatus('error');
+  }
+}
+
+const handleCloseModal = () => {
+  setStatus('idle')
+  setModalOpen(false)
+}
 
   return (
     <section id="contact" className="py-24 bg-white">
@@ -91,10 +123,7 @@ const handleChange = (e: InputChangeEvent): void => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            onSubmit={(e) => {
-                e.preventDefault();
-                console.log("Form submitted:", formData);
-            }}
+            onSubmit={handleSubmit}
             className="space-y-6"
           >
             <div>
@@ -169,6 +198,57 @@ const handleChange = (e: InputChangeEvent): void => {
               Send Message
             </button>
           </motion.form>
+          <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+            {status === "loading" && (
+              <div className="flex flex-col items-center gap-4">
+                <LoadingThreeDotsPulse />
+              </div>
+            )}
+
+            {status === "success" && (
+              <motion.div
+                className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-sm"
+                initial={{ scale: 0.8, opacity: 0, y: 40 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 40 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <CheckCircle className="w-10 h-10 text-green-500" />
+                  <p className="font-medium">Email sent successfully!</p>
+                  <button
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-primary-600 text-neutral rounded-lg font-semibold hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
+                    onClick={handleCloseModal}
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div> 
+            )}
+
+            {status === "error" && (
+              <motion.div
+                className="bg-white rounded-2xl shadow-xl p-10 w-[90%] max-w-sm"
+                initial={{ scale: 0.8, opacity: 0, y: 40 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 40 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <XCircle className="w-10 h-10 text-red-500" />
+                  <p className="font-medium">Failed to send email.</p>
+                  <button
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-primary-600 text-neutral rounded-lg font-semibold hover:bg-primary-700 transition-colors shadow-lg hover:shadow-xl"
+                    onClick={handleCloseModal}
+                  >
+                    Close
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </Modal>
         </div>
       </div>
     </section>
